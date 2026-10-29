@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}Crear cuenta{% endblock %}
+{% block contenido %}
+<main class="pantalla-acceso">
+  <div class="acceso-cabecera">
+    <a class="marca" href="{% url 'cuentas:login' %}"><img src="{% static 'img/logo.svg' %}" alt=""><span class="marca-texto">NexU</span></a>
+  </div>
+
+  <div class="tarjeta tarjeta-ancha">
+    <h1 style="font-size:1.35rem">Crea tu cuenta</h1>
+    <p style="color:var(--texto-suave);margin-top:0">Con tu cuenta puedes postular y recibir avisos de las PyMEs.</p>
+    {% for error in form.non_field_errors %}<div class="alerta alerta-error" role="alert">{{ error }}</div>{% endfor %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="fila-2">
+        {% include 'cuentas/_campo.html' with campo=form.nombres %}
+        {% include 'cuentas/_campo.html' with campo=form.apellidos %}
+      </div>
+      <div class="fila-2">
+        {% include 'cuentas/_campo.html' with campo=form.rut %}
+        {% include 'cuentas/_campo.html' with campo=form.telefono %}
+      </div>
+      {% include 'cuentas/_campo.html' with campo=form.correo %}
+      {% include 'cuentas/_campo.html' with campo=form.comuna %}
+      <div class="fila-2">
+        {% include 'cuentas/_campo.html' with campo=form.contrasena %}
+        {% include 'cuentas/_campo.html' with campo=form.contrasena2 %}
+      </div>
+      <button type="submit" class="btn btn-primario btn-bloque">Crear cuenta</button>
+    </form>
+  </div>
+
+  <p class="acceso-pie">¿Ya tienes cuenta? <a href="{% url 'cuentas:login' %}">Inicia sesión</a></p>
+</main>
+{% endblock %}

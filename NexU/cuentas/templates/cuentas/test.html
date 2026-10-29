@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}Test de preferencias{% endblock %}
+{% block contenido %}
+<main class="pantalla-acceso">
+  {# Todas las preguntas están en un solo formulario; test.js muestra una por pantalla #}
+  <form class="test" method="post" id="form-test" novalidate>
+    {% csrf_token %}
+    <div class="test-barra">
+      <a class="icono-btn" href="{% if user.is_authenticated %}{% url 'empleos:mapa' %}{% else %}{% url 'cuentas:login' %}{% endif %}" aria-label="Salir del test">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </a>
+      <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1" id="progreso"><i></i></div>
+      <span class="test-paso-num" id="paso-num">1 de 6</span>
+    </div>
+
+    <section class="pregunta" data-tipo="radio">
+      <h1>¿En qué año de carrera estás?</h1>
+      <p class="ayuda">Nos ayuda a mostrarte trabajos acordes a tu experiencia.</p>
+      <div class="opciones">
+        {% for valor, texto in anios %}
+          <label class="opcion"><input type="radio" name="anio_carrera" value="{{ valor }}"
+            {% if previas.anio_carrera == valor %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="checkbox">
+      <h1>¿Qué tipo de trabajos te interesan?</h1>
+      <p class="ayuda">Elige todos los que quieras.</p>
+      <div class="opciones opciones-2">
+        {% for valor, texto in categorias %}
+          <label class="opcion"><input type="checkbox" name="categorias" value="{{ valor }}"
+            {% if valor in previas.categorias %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="checkbox">
+      <h1>¿Qué jornada prefieres?</h1>
+      <p class="ayuda">Puedes marcar más de una.</p>
+      <div class="opciones">
+        {% for valor, texto in jornadas %}
+          <label class="opcion"><input type="checkbox" name="jornadas" value="{{ valor }}"
+            {% if valor in previas.jornadas %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="checkbox">
+      <h1>¿Qué días tienes disponibles?</h1>
+      <p class="ayuda">Marca los días en que podrías trabajar.</p>
+      <div class="opciones opciones-2">
+        {% for valor, texto in dias %}
+          <label class="opcion"><input type="checkbox" name="dias" value="{{ valor }}"
+            {% if valor in previas.dias %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="rango">
+      <h1>¿Hasta qué distancia estás dispuesto/a a moverte?</h1>
+      <p class="ayuda">Medida en línea recta desde tu ubicación.</p>
+      <p class="valor-distancia"><output id="salida-distancia">{{ distancia_inicial }}</output> <small>km</small></p>
+      <input type="range" name="distancia_max" id="rango-distancia" min="1" max="20" step="1"
+             value="{{ distancia_inicial }}" aria-label="Distancia máxima en kilómetros">
+      <div class="rango-extremos"><span>1 km</span><span>20 km</span></div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="radio">
+      <h1>¿Cuánto esperas ganar como mínimo?</h1>
+      <p class="ayuda">Pago por jornada o turno, en pesos chilenos.</p>
+      <div class="opciones">
+        {% for valor, texto in rangos_pago %}
+          <label class="opcion"><input type="radio" name="pago_minimo" value="{{ valor }}"
+            {% if previas.pago_minimo|stringformat:"s" == valor|stringformat:"s" %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="test-navegacion">
+      <button type="button" class="btn btn-borde" id="btn-atras">Atrás</button>
+      <button type="button" class="btn btn-primario" id="btn-siguiente" disabled>Siguiente</button>
+    </div>
+  </form>
+</main>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/test.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block contenido %}
+<main class="pantalla-acceso">
+  <div class="acceso-cabecera">
+    <span class="marca marca-grande"><img src="{% static 'img/logo.svg' %}" alt=""><span class="marca-texto">NexU</span></span>
+    <p>Trabajos cerca de ti, en Valparaíso y Viña.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h1 style="font-size:1.35rem">Inicia sesión</h1>
+    {% if test_en_sesion %}
+      <div class="alerta alerta-info">Tus respuestas del test se guardarán en tu perfil al entrar.</div>
+    {% endif %}
+    {% for error in form.non_field_errors %}<div class="alerta alerta-error" role="alert">{{ error }}</div>{% endfor %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% include 'cuentas/_campo.html' with campo=form.correo %}
+      {% include 'cuentas/_campo.html' with campo=form.contrasena %}
+      <button type="submit" class="btn btn-primario btn-bloque">Iniciar sesión</button>
+    </form>
+
+    <div class="separador">¿Primera vez en NexU?</div>
+    <a class="btn btn-borde btn-bloque" href="{% url 'cuentas:registro' %}">Crear una cuenta</a>
+  </div>
+
+  <p class="acceso-pie">¿Solo quieres explorar? <a href="{% url 'cuentas:test' %}">Haz el test de preferencias</a></p>
+</main>
+{% endblock %}

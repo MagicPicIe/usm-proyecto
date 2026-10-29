@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}Trabajos cerca de ti{% endblock %}
+{% block clase_body %}pagina-mapa{% endblock %}
+{% block cabeza %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous">
+{% endblock %}
+
+{% block contenido %}
+{% include 'empleos/_encabezado.html' %}
+
+<main>
+  <div id="mapa" aria-label="Mapa de trabajos cercanos"></div>
+
+  {% if not test_realizado %}
+    <div class="aviso-test" role="note">
+      <span>Haz el test y te mostramos los trabajos que más calzan contigo.</span>
+      <a class="btn btn-pequeno" href="{% url 'cuentas:test' %}">Hacer test</a>
+    </div>
+  {% endif %}
+
+  <div class="chip-resultados" id="chip-resultados" aria-live="polite">Buscando trabajos…</div>
+
+  <div class="botones-mapa">
+    <button type="button" class="boton-flotante" id="btn-filtros" aria-label="Abrir filtros" aria-expanded="false" aria-controls="panel-filtros">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    </button>
+    <button type="button" class="boton-flotante" id="btn-centrar" aria-label="Volver a mi ubicación">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    </button>
+  </div>
+
+  {# Panel de filtros: hoja que sube desde abajo en celular, tarjeta flotante en escritorio #}
+  <aside class="panel-filtros" id="panel-filtros" aria-label="Filtros">
+    <div class="agarre" aria-hidden="true"></div>
+    <div class="panel-titulo">
+      <h2>Filtros</h2>
+      <button type="button" class="btn btn-texto" id="btn-cerrar-filtros">Cerrar</button>
+    </div>
+
+    <div class="grupo-filtro">
+      <div class="fila-switch">
+        <p style="margin:0"><strong>Solo recomendados</strong>
+          <small>{% if test_realizado %}Compatibilidad de 70 % o más{% else %}Haz el test para activarlo{% endif %}</small></p>
+        <label class="switch"><span class="sr-only">Mostrar solo recomendados</span>
+          <input type="checkbox" id="f-recomendados" {% if not test_realizado %}disabled{% endif %}><span></span></label>
+      </div>
+      <div class="fila-switch" style="margin-top:.9rem">
+        <p style="margin:0"><strong>Solo verificadas en LinkedIn</strong>
+          <small>Ofertas revisadas por NexU</small></p>
+        <label class="switch"><span class="sr-only">Mostrar solo ofertas verificadas en LinkedIn</span>
+          <input type="checkbox" id="f-verificadas"><span></span></label>
+      </div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3><label for="f-radio">Distancia</label> <output id="f-radio-salida">5 km</output></h3>
+      <input type="range" id="f-radio" min="1" max="20" step="1" value="5">
+      <div class="rango-extremos"><span>1 km</span><span>20 km</span></div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3>Jornada</h3>
+      <div class="casillas">
+        {% for valor, texto in jornadas %}
+          <label class="casilla"><input type="checkbox" name="jornada" value="{{ valor }}"><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3>Experiencia</h3>
+      <div class="casillas">
+        {% for valor, texto in experiencias %}
+          <label class="casilla"><input type="checkbox" name="experiencia" value="{{ valor }}"><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="grupo-filtro">
+      <button type="button" class="btn btn-borde btn-bloque btn-pequeno" id="btn-cambiar-ubicacion">Cambiar ubicación</button>
+      <a class="btn btn-texto btn-bloque btn-pequeno" id="enlace-api" href="{% url 'empleos:api_ofertas' %}" target="_blank" rel="noopener">Ver estos resultados en JSON</a>
+    </div>
+  </aside>
+
+  {# Aviso de ubicación al entrar #}
+  <div class="velo oculto" id="modal-ubicacion" role="dialog" aria-modal="true" aria-labelledby="titulo-ubicacion">
+    <div class="modal">
+      <div class="modal-icono" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+      </div>
+      <h2 id="titulo-ubicacion">¿Dónde estás?</h2>
+      <div id="paso-gps">
+        <p>Usamos tu ubicación para mostrarte los trabajos cercanos y calcular a qué distancia están. No la guardamos.</p>
+        <button type="button" class="btn btn-primario btn-bloque" id="btn-usar-ubicacion">Usar mi ubicación</button>
+        <button type="button" class="btn btn-texto btn-bloque" id="btn-elegir-comuna">Prefiero elegir mi comuna</button>
+      </div>
+      <div id="paso-comuna" class="oculto">
+        <p id="motivo-comuna">Elige tu comuna y usaremos un punto de referencia.</p>
+        <div class="lista-comunas" id="lista-comunas"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{{ config_mapa|json_script:"config-mapa" }}
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+  <script src="{% static 'js/mapa.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block titulo %}Tu test de preferencias{% endblock %}
+{% block contenido %}
+<main class="pantalla-acceso">
+  <div class="tarjeta" style="margin-top:12vh;text-align:center">
+    <div class="icono-exito" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21l1.5-7L2 9.3l7-.8z"/></svg>
+    </div>
+    <h1 style="font-size:1.4rem">¿Te ayudamos a encontrar tu trabajo ideal?</h1>
+    <p style="color:var(--texto-suave)">Responde 6 preguntas rápidas y te mostraremos en el mapa los trabajos que más calzan contigo. Toma menos de un minuto.</p>
+    <a class="btn btn-acento btn-bloque" href="{% url 'cuentas:test' %}">Hacer el test</a>
+    <a class="btn btn-texto btn-bloque" href="{% url 'empleos:mapa' %}" style="margin-top:.4rem">Saltar por ahora</a>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ oferta.titulo }}{% endblock %}
+{% block clase_body %}pagina-detalle{% endblock %}
+{% block contenido %}
+{% include 'empleos/_encabezado.html' %}
+
+<main class="detalle">
+  <a class="btn btn-texto detalle-volver" href="{% url 'empleos:mapa' %}">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    Volver al mapa
+  </a>
+
+  <article class="tarjeta" style="max-width:none">
+    <div class="detalle-cabecera">
+      <h1>{{ oferta.titulo }}</h1>
+      <p class="pyme">{{ oferta.pyme.nombre }}, {{ oferta.get_comuna_display }}</p>
+    </div>
+
+    <div class="datos-oferta">
+      <div class="dato dato-pago"><small>Pago por jornada</small><strong>{{ oferta.pago_texto }}</strong></div>
+      <div class="dato"><small>Jornada</small><strong>{{ oferta.get_jornada_display }}</strong></div>
+      <div class="dato"><small>Horario</small><strong>{{ oferta.horario }}</strong></div>
+      <div class="dato"><small>Experiencia</small><strong>{{ experiencia_texto }}</strong></div>
+      <div class="dato" style="grid-column:1/-1"><small>Días</small><strong>{{ oferta.dias_texto }}</strong></div>
+      <div class="dato"><small>Categoría</small><strong>{{ oferta.get_categoria_display }}</strong></div>
+      <div class="dato"><small>Publicada</small><strong>{{ oferta.fecha_publicacion|date:"j M Y" }}</strong></div>
+    </div>
+
+    {# Verificación con LinkedIn #}
+    <section class="verificacion{% if oferta.verificada %} ok{% endif %}" aria-label="Verificación en LinkedIn">
+      <span class="verificacion-icono" aria-hidden="true">
+        {% if oferta.verificada %}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        {% else %}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/><path d="M12 8v5M12 16h.01"/></svg>
+        {% endif %}
+      </span>
+      <div>
+        {% if oferta.verificada %}
+          <h2>Verificada en LinkedIn</h2>
+          <p>NexU revisó que esta oferta está publicada en LinkedIn por la misma PyME
+             (revisada el {{ oferta.fecha_verificacion|date:"j \d\e F \d\e Y" }}).</p>
+        {% elif oferta.linkedin_url %}
+          <h2>Sin verificar</h2>
+          <p>La PyME agregó un enlace a LinkedIn, pero NexU aún no lo revisa. Ábrelo y confirma que la publicación existe.</p>
+        {% else %}
+          <h2>Sin verificar</h2>
+          <p>Esta oferta no tiene publicación en LinkedIn. Antes de ir, confirma los datos directamente con la PyME. NexU nunca te pedirá pagar para postular.</p>
+        {% endif %}
+        {% if oferta.linkedin_url or oferta.pyme.linkedin_url %}
+          <div class="enlaces">
+            {% if oferta.linkedin_url %}
+              <a class="btn btn-borde btn-pequeno" href="{{ oferta.linkedin_url }}" target="_blank" rel="noopener">Ver publicación en LinkedIn</a>
+            {% endif %}
+            {% if oferta.pyme.linkedin_url %}
+              <a class="btn btn-borde btn-pequeno" href="{{ oferta.pyme.linkedin_url }}" target="_blank" rel="noopener">Ver empresa en LinkedIn</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <h2 style="font-size:1.1rem;margin-top:1.4rem">Descripción</h2>
+    <p class="descripcion">{{ oferta.descripcion|linebreaksbr }}</p>
+
+    <h2 style="font-size:1.1rem;margin-top:1.4rem">Sobre la PyME</h2>
+    <p class="descripcion" style="color:var(--texto-suave)">
+      {{ oferta.pyme.rubro }}. {{ oferta.pyme.direccion }}.
+    </p>
+
+    <div class="detalle-acciones">
+      {% if ya_postulo %}
+        <button type="button" class="btn btn-borde" disabled>Ya postulaste</button>
+      {% elif oferta.activa %}
+        <button type="button" class="btn btn-acento" data-postular="{% url 'empleos:postular' oferta.pk %}">Postular</button>
+      {% else %}
+        <button type="button" class="btn btn-borde" disabled>Oferta cerrada</button>
+      {% endif %}
+      <a class="btn btn-borde" href="{% url 'empleos:mapa' %}">Volver al mapa</a>
+    </div>
+  </article>
+</main>
+{% endblock %}
