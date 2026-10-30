@@ -10,11 +10,23 @@
       <a class="icono-btn" href="{% if user.is_authenticated %}{% url 'empleos:mapa' %}{% else %}{% url 'cuentas:login' %}{% endif %}" aria-label="Salir del test">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </a>
-      <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1" id="progreso"><i></i></div>
-      <span class="test-paso-num" id="paso-num">1 de 6</span>
+      <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" id="progreso"><i></i></div>
+      <span class="test-paso-num" id="paso-num">1 de 7</span>
     </div>
 
+    {# Pregunta: carrera que cursa (opciones de ingenierías de la USM) #}
     <section class="pregunta" data-tipo="radio">
+      <h1>¿Qué carrera estudias?</h1>
+      <p class="ayuda">Elige tu carrera en la USM.</p>
+      <div class="opciones">
+        {% for valor, texto in carreras %}
+          <label class="opcion"><input type="radio" name="carrera" value="{{ valor }}"
+            {% if previas.carrera == valor %}checked{% endif %}><span>{{ texto }}</span></label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pregunta oculto" data-tipo="radio">
       <h1>¿En qué año de carrera estás?</h1>
       <p class="ayuda">Nos ayuda a mostrarte trabajos acordes a tu experiencia.</p>
       <div class="opciones">
