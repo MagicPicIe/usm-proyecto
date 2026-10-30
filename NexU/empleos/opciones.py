@@ -14,6 +14,7 @@ CATEGORIAS = [
     ('tutorias', 'Tutorías y educación'),
     ('tecnologia', 'Tecnología'),
     ('eventos', 'Eventos'),
+    ('otros', 'Otros'),
 ]
 
 JORNADAS = [
@@ -45,13 +46,11 @@ ANIOS_CARRERA = [
     ('3', '3° año'),
     ('4', '4° año'),
     ('5', '5° año o más'),
-    ('egresado', 'Egresado/a'),
-    ('no_estudia', 'No estudio actualmente'),
 ]
 
 # Pago mínimo esperado por jornada/turno (CLP). 0 = sin mínimo.
 RANGOS_PAGO = [
-    (0, 'Me da igual'),
+    (0, 'No tengo preferencia.'),
     (15000, 'Desde $15.000'),
     (25000, 'Desde $25.000'),
     (35000, 'Desde $35.000'),
