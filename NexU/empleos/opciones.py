@@ -1,9 +1,3 @@
-"""
-Opciones (choices) compartidas por las apps empleos y cuentas.
-
-Se mantienen en un solo lugar para que el test de preferencias, las ofertas
-y los filtros del mapa usen exactamente los mismos códigos.
-"""
 
 CATEGORIAS = [
     ('gastronomia', 'Gastronomía'),
@@ -48,9 +42,26 @@ ANIOS_CARRERA = [
     ('5', '5° año o más'),
 ]
 
+
+CARRERAS = [
+    ('civil', 'Ingeniería Civil'),
+    ('ambiental', 'Ingeniería Civil Ambiental'),
+    ('electrica', 'Ingeniería Civil Eléctrica'),
+    ('electronica', 'Ingeniería Civil Electrónica'),
+    ('industrial', 'Ingeniería Civil Industrial'),
+    ('informatica', 'Ingeniería Civil Informática'),
+    ('matematica', 'Ingeniería Civil Matemática'),
+    ('mecanica', 'Ingeniería Civil Mecánica'),
+    ('metalurgica', 'Ingeniería Civil Metalúrgica'),
+    ('quimica', 'Ingeniería Civil Química'),
+    ('telematica', 'Ingeniería Civil Telemática'),
+    ('comercial', 'Ingeniería Comercial'),
+    ('otra', 'Otra carrera'),
+]
+
 # Pago mínimo esperado por jornada/turno (CLP). 0 = sin mínimo.
 RANGOS_PAGO = [
-    (0, 'No tengo preferencia.'),
+    (0, 'No tengo preferencia'),
     (15000, 'Desde $15.000'),
     (25000, 'Desde $25.000'),
     (35000, 'Desde $35.000'),
@@ -66,7 +77,7 @@ COMUNAS = [
 ]
 
 # Coordenadas de referencia (centro aproximado de cada comuna). Se usan cuando
-# el navegador no entrega la ubicación y en el comando /recomendados del bot.
+# el navegador no entrega la ubicación.
 COORDENADAS_COMUNAS = {
     'valparaiso': (-33.0472, -71.6127),
     'vina': (-33.0245, -71.5518),
