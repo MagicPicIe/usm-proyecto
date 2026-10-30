@@ -1,12 +1,9 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
 from cuentas.validators import validar_rut
 
-from .linkedin import (normalizar_url_empleo, normalizar_url_empresa,
-                       validar_url_empleo, validar_url_empresa)
 from .opciones import (CATEGORIAS, COMUNAS, DIAS, EXPERIENCIAS, JORNADAS,
                        etiqueta, formatear_clp)
 
@@ -19,9 +16,6 @@ class PyME(models.Model):
     direccion = models.CharField('dirección', max_length=200)
     telefono = models.CharField('teléfono', max_length=20)
     correo = models.EmailField('correo')
-    linkedin_url = models.URLField(
-        'página de LinkedIn', max_length=500, blank=True, validators=[validar_url_empresa],
-        help_text='Ej: https://www.linkedin.com/company/nombre-empresa/')
 
     class Meta:
         verbose_name = 'PyME'
@@ -30,10 +24,6 @@ class PyME(models.Model):
 
     def __str__(self):
         return self.nombre
-
-    def save(self, *args, **kwargs):
-        self.linkedin_url = normalizar_url_empresa(self.linkedin_url) if self.linkedin_url else ''
-        super().save(*args, **kwargs)
 
 
 class OfertaTrabajo(models.Model):
@@ -53,16 +43,6 @@ class OfertaTrabajo(models.Model):
     latitud = models.FloatField('latitud')
     longitud = models.FloatField('longitud')
     activa = models.BooleanField('activa', default=True)
-    # --- Verificación con LinkedIn (ver empleos/linkedin.py) ---
-    linkedin_url = models.URLField(
-        'publicación en LinkedIn', max_length=500, blank=True, validators=[validar_url_empleo],
-        help_text='Enlace a la misma oferta publicada en LinkedIn, '
-                  'ej: https://www.linkedin.com/jobs/view/1234567890/')
-    verificada = models.BooleanField(
-        'verificada en LinkedIn', default=False,
-        help_text='Márcala solo después de abrir el enlace y confirmar que la publicación '
-                  'existe y corresponde a esta PyME.')
-    fecha_verificacion = models.DateTimeField('fecha de verificación', null=True, blank=True)
     fecha_publicacion = models.DateTimeField('fecha de publicación', default=timezone.now)
 
     class Meta:
@@ -75,27 +55,6 @@ class OfertaTrabajo(models.Model):
 
     def get_absolute_url(self):
         return reverse('empleos:detalle', args=[self.pk])
-
-    def clean(self):
-        if self.verificada and not self.linkedin_url:
-            raise ValidationError({'verificada': 'Para marcarla como verificada, primero agrega '
-                                                 'el enlace de la publicación en LinkedIn.'})
-
-    def save(self, *args, **kwargs):
-        self.linkedin_url = normalizar_url_empleo(self.linkedin_url) if self.linkedin_url else ''
-        # Si cambia el enlace de una oferta ya verificada, la verificación deja
-        # de valer (se revisó otra publicación) y hay que volver a revisarla.
-        if self.pk:
-            anterior = OfertaTrabajo.objects.filter(pk=self.pk).values('linkedin_url', 'verificada').first()
-            if anterior and anterior['verificada'] and anterior['linkedin_url'] != self.linkedin_url:
-                self.verificada = False
-        if not self.linkedin_url:
-            self.verificada = False
-        if self.verificada and self.fecha_verificacion is None:
-            self.fecha_verificacion = timezone.now()
-        if not self.verificada:
-            self.fecha_verificacion = None
-        super().save(*args, **kwargs)
 
     # --- Ayudas para mostrar datos en plantillas y JSON ---
     @property
