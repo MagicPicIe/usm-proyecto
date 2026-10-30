@@ -9,14 +9,13 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from empleos.opciones import (ANIOS_CARRERA, CATEGORIAS, DIAS, JORNADAS,
+from empleos.opciones import (ANIOS_CARRERA, CARRERAS, CATEGORIAS, DIAS, JORNADAS,
                               RANGOS_PAGO)
 
 from .forms import LoginForm, RegistroForm, TestPreferenciasForm
 from .models import Postulante, PreferenciasTest, resumen_preferencias
 from .preferencias import (CLAVE_SESION, guardar_en_perfil, obtener_postulante,
                            obtener_preferencias)
-from .telegram import enviar_mensaje
 
 
 def _destino_seguro(request, por_defecto='empleos:mapa'):
@@ -78,7 +77,7 @@ def invitar_test(request):
 
 @never_cache
 def test_preferencias(request):
-    """Test de 6 preguntas. Funciona con o sin cuenta."""
+    """Test de 7 preguntas. Funciona con o sin cuenta."""
     previas = obtener_preferencias(request) or {}
     if request.method == 'POST':
         form = TestPreferenciasForm(request.POST)
@@ -99,6 +98,7 @@ def test_preferencias(request):
                    else request.POST.get(k) for k in form.fields}
 
     return render(request, 'cuentas/test.html', {
+        'carreras': CARRERAS,
         'anios': ANIOS_CARRERA,
         'categorias': CATEGORIAS,
         'jornadas': JORNADAS,
@@ -116,43 +116,6 @@ def test_resumen(request):
     return render(request, 'cuentas/test_resumen.html', {
         'resumen': resumen_preferencias(prefs),
     })
-
-
-@login_required
-@require_POST
-def marcar_notificaciones_leidas(request):
-    request.user.notificaciones.filter(leida=False).update(leida=True)
-    return JsonResponse({'ok': True})
-
-
-@login_required
-@require_POST
-def cambiar_notificaciones(request):
-    postulante = obtener_postulante(request.user)
-    if postulante is None:
-        return JsonResponse({'ok': False, 'mensaje': 'Tu usuario no tiene perfil de postulante.'},
-                            status=400)
-    postulante.notificaciones_activas = request.POST.get('activas') == '1'
-    postulante.save(update_fields=['notificaciones_activas'])
-    texto = 'Notificaciones activadas' if postulante.notificaciones_activas \
-        else 'Notificaciones desactivadas'
-    return JsonResponse({'ok': True, 'activas': postulante.notificaciones_activas,
-                         'mensaje': texto})
-
-
-@login_required
-@require_POST
-def desconectar_telegram(request):
-    postulante = obtener_postulante(request.user)
-    if postulante and postulante.telegram_chat_id:
-        chat_id = postulante.telegram_chat_id
-        postulante.telegram_chat_id = None
-        # Se regenera el código para que el enlace anterior deje de servir
-        postulante.regenerar_codigo_telegram()
-        postulante.save(update_fields=['telegram_chat_id', 'telegram_codigo'])
-        enviar_mensaje(chat_id, 'Tu cuenta NexU fue desconectada de este chat.')
-        messages.success(request, 'Telegram desconectado.')
-    return redirect('empleos:mapa')
 
 
 def csrf_fallido(request, reason=''):
