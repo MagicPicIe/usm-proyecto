@@ -1,5 +1,5 @@
-/* NexU – utilidades compartidas: CSRF, avisos flotantes, paneles,
-   modo oscuro, notificaciones y postular. */
+/* NexU – utilidades compartidas: CSRF, avisos flotantes, panel de
+   configuraciones, modo oscuro y postular. */
 (function () {
   'use strict';
 
@@ -83,7 +83,7 @@
     });
   });
 
-  // --- Paneles del encabezado (notificaciones y configuraciones) -----------
+  // --- Panel del encabezado (configuraciones) ------------------------------
   var botonesPanel = document.querySelectorAll('[data-abre]');
   function cerrarPaneles(excepto) {
     botonesPanel.forEach(function (b) {
@@ -102,16 +102,6 @@
       cerrarPaneles(panel);
       panel.classList.toggle('oculto', !abrir);
       btn.setAttribute('aria-expanded', String(abrir));
-
-      // Al abrir las notificaciones se marcan como leídas
-      if (abrir && btn.dataset.sinLeer) {
-        enviarPost(btn.dataset.marcarUrl).then(function () {
-          delete btn.dataset.sinLeer;
-          var punto = document.getElementById('punto-rojo');
-          if (punto) punto.remove();
-          btn.setAttribute('aria-label', 'Notificaciones');
-        });
-      }
     });
   });
   document.addEventListener('click', function (e) {
@@ -129,27 +119,6 @@
       var tema = swTema.checked ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', tema);
       try { localStorage.setItem('nexu-tema', tema); } catch (err) { /* modo privado */ }
-    });
-  }
-
-  // --- Idioma (solo guarda la preferencia) -------------------------------
-  var selIdioma = document.getElementById('cfg-idioma');
-  if (selIdioma) {
-    try { selIdioma.value = localStorage.getItem('nexu-idioma') || 'es'; } catch (err) { /* */ }
-    selIdioma.addEventListener('change', function () {
-      try { localStorage.setItem('nexu-idioma', selIdioma.value); } catch (err) { /* */ }
-      aviso('Preferencia de idioma guardada');
-    });
-  }
-
-  // --- Notificaciones activadas / desactivadas ---------------------------
-  var swNotif = document.getElementById('cfg-notificaciones');
-  if (swNotif && !swNotif.disabled) {
-    swNotif.addEventListener('change', function () {
-      enviarPost(swNotif.dataset.url, { activas: swNotif.checked ? '1' : '0' }).then(function (r) {
-        if (r.ok) aviso(r.mensaje);
-        else { swNotif.checked = !swNotif.checked; aviso(r.mensaje || 'No se pudo guardar.', 'error'); }
-      });
     });
   }
 })();
