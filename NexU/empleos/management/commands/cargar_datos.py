@@ -175,12 +175,14 @@ POSTULANTE_PRUEBA = {
 }
 # Test ya respondido, para ver recomendaciones apenas entra
 TEST_PRUEBA = {
+    'carrera': 'informatica',
     'anio_carrera': '3',
     'categorias': ['gastronomia', 'comercio', 'tecnologia', 'eventos'],
     'jornadas': ['diurna', 'part_time', 'un_dia'],
     'dias': ['lun', 'mar', 'mie', 'jue', 'vie', 'sab'],
     'distancia_max': 10,
     'pago_minimo': 15000,
+}
 }
 # Postulaciones de ejemplo: (título de la oferta, estado)
 POSTULACIONES_PRUEBA = [
