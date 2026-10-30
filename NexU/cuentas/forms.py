@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 
-from empleos.opciones import (ANIOS_CARRERA, CATEGORIAS, COMUNAS, DIAS, JORNADAS,
+from empleos.opciones import (ANIOS_CARRERA, CARRERAS, CATEGORIAS, COMUNAS, DIAS, JORNADAS,
                               RANGOS_PAGO)
 
 from .models import Postulante
@@ -92,6 +92,8 @@ class RegistroForm(forms.Form):
 
 class TestPreferenciasForm(forms.Form):
     """Valida las respuestas del test (la interfaz de 1 pregunta por pantalla es JS)."""
+    carrera = forms.ChoiceField(choices=CARRERAS, error_messages={
+        'required': 'Elige la carrera que estudias.'})
     anio_carrera = forms.ChoiceField(choices=ANIOS_CARRERA,
                                      error_messages={'required': 'Indica tu año de carrera.'})
     categorias = forms.MultipleChoiceField(choices=CATEGORIAS, error_messages={
